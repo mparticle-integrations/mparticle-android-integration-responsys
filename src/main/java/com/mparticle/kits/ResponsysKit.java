@@ -2,7 +2,6 @@ package com.mparticle.kits;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.JobIntentService;
 
 import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
@@ -10,8 +9,7 @@ import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
 import com.mparticle.identity.MParticleUser;
 import com.pushio.manager.PIOLogger;
-import com.pushio.manager.PushIOConstants;
-import com.pushio.manager.PushIOGCMIntentService;
+import com.pushio.manager.PushIOBroadcastReceiver;
 import com.pushio.manager.PushIOManager;
 import com.pushio.manager.exception.ValidationException;
 import com.pushio.manager.preferences.PushIOPreference;
@@ -21,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 import static com.mparticle.MParticle.IdentityType.CustomerId;
 
@@ -232,10 +229,7 @@ public class ResponsysKit extends KitIntegration implements KitIntegration.PushL
     public void onPushMessageReceived(Context context, Intent intent) {
         PIOLogger.v("RK oPMR");
         Intent newIntent = new Intent(intent);
-        newIntent.setClassName(context, PushIOGCMIntentService.class.getName());
-        JobIntentService.enqueueWork(context, PushIOGCMIntentService.class,
-                PushIOConstants.PIO_GCM_INTENT_SERVICE_JOB_ID,
-                newIntent);
+        new PushIOBroadcastReceiver().onReceive(getContext(), newIntent);
     }
 
     @Override
