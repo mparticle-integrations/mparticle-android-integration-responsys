@@ -16,7 +16,7 @@ This repository contains the [Responsys](https://docs.oracle.com/cloud/latest/ma
 3. Add the kit dependency to your app's build.gradle:
     ```
     dependencies {
-    		compile 'com.mparticle:android-responsys-kit:5+'
+    		implementation 'com.mparticle:android-responsys-kit:5+'
     }
     ```
     >
