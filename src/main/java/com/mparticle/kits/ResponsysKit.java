@@ -143,7 +143,7 @@ public class ResponsysKit extends KitIntegration implements KitIntegration.PushL
                 eventProperties.put("Pid", product.getSku());
                 eventProperties.put("Pc", product.getCategory());
 
-                Map<String, String> customProperties = commerceEvent.getCustomAttributes();
+                Map<String, String> customProperties = commerceEvent.getCustomAttributeStrings();
                 if(customProperties != null) {
                     eventProperties.putAll(customProperties);
                 }
@@ -197,7 +197,7 @@ public class ResponsysKit extends KitIntegration implements KitIntegration.PushL
                 reportingMessages.add(ReportingMessage.fromEvent(this, mpEvent));
                 break;
             case UserPreference:
-                Map<String, String> eventInfo = mpEvent.getInfo();
+                Map<String, String> eventInfo = mpEvent.getCustomAttributeStrings();
                 if (eventInfo != null) {
                     for (Map.Entry<String, String> entry : eventInfo.entrySet()) {
                         try {
