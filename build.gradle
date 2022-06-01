@@ -24,7 +24,7 @@ android {
 
 dependencies {
     compileOnly fileTree(dir: 'libs', include: ['PushIOManager-6.49.1.aar'])
-    implementation 'androidx.core:core:1.7.0'
+    implementation 'androidx.core:core:1.8.0'
     testImplementation fileTree(dir: 'libs', include: ['PushIOManager-6.49.1.aar'])
 }
 
