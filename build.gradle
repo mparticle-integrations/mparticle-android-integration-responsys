@@ -21,7 +21,7 @@ apply plugin: 'kotlin-android'
 
 android {
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 16
     }
 }
 
