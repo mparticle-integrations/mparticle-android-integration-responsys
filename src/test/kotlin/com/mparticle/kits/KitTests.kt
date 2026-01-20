@@ -2,9 +2,12 @@ package com.mparticle.kits
 
 import android.content.Context
 import com.mparticle.MParticleOptions
+import com.mparticle.kits.KitIntegration
+import com.mparticle.kits.KitIntegrationFactory
 import org.junit.Assert
 import org.junit.Test
 import org.mockito.Mockito
+import java.util.HashMap
 
 class KitTests {
     private val kit: KitIntegration
@@ -27,7 +30,7 @@ class KitTests {
         var e: Exception? = null
         try {
             val kit = kit
-            val settings=  HashMap<String,String>()
+            val settings = HashMap<String, String>()
             settings["fake setting"] = "fake"
             kit.onKitCreate(settings, Mockito.mock(Context::class.java))
         } catch (ex: Exception) {
