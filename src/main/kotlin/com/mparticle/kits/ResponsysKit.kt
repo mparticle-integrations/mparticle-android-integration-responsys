@@ -8,24 +8,34 @@ import com.mparticle.MParticle.IdentityType
 import com.mparticle.commerce.CommerceEvent
 import com.mparticle.commerce.Product
 import com.mparticle.identity.MParticleUser
-import com.mparticle.kits.KitIntegration.*
+import com.mparticle.kits.FilteredIdentityApiRequest
+import com.mparticle.kits.KitIntegration.CommerceListener
+import com.mparticle.kits.KitIntegration.EventListener
+import com.mparticle.kits.KitIntegration.IdentityListener
+import com.mparticle.kits.KitIntegration.PushListener
+import com.mparticle.kits.ReportingMessage
 import com.pushio.manager.PIOLogger
 import com.pushio.manager.PushIOBroadcastReceiver
 import com.pushio.manager.PushIOManager
 import com.pushio.manager.exception.ValidationException
 import com.pushio.manager.preferences.PushIOPreference
 import java.math.BigDecimal
+import java.util.ArrayList
+import java.util.HashMap
 
-class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListener, CommerceListener,
+class ResponsysKit :
+    KitIntegration(),
+    PushListener,
+    KitIntegration.EventListener,
+    CommerceListener,
     IdentityListener {
-
     private var mPushIOManager: PushIOManager? = null
 
     override fun getInstance(): PushIOManager? = mPushIOManager
 
     override fun onKitCreate(
         settings: Map<String, String>,
-        context: Context
+        context: Context,
     ): List<ReportingMessage> {
         PIOLogger.d("Responsys Kit detected")
         PIOLogger.v("RK oKC")
@@ -63,7 +73,7 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
         bigDecimal: BigDecimal,
         bigDecimal1: BigDecimal,
         s: String,
-        map: Map<String, String>
+        map: Map<String, String>,
     ): List<ReportingMessage> = emptyList()
 
     override fun logEvent(commerceEvent: CommerceEvent): List<ReportingMessage>? {
@@ -94,7 +104,8 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
                     if (productAction.equals(Product.PURCHASE, true)) {
                         mPushIOManager?.trackEngagement(
                             PushIOManager.PUSHIO_ENGAGEMENT_METRIC_PURCHASE,
-                            customProperties, null
+                            customProperties,
+                            null,
                         )
                     }
                 }
@@ -108,12 +119,15 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
 
     override fun leaveBreadcrumb(s: String): List<ReportingMessage> = emptyList()
 
-    override fun logError(s: String, map: Map<String, String>): List<ReportingMessage> = emptyList()
+    override fun logError(
+        s: String,
+        map: Map<String, String>,
+    ): List<ReportingMessage> = emptyList()
 
     override fun logException(
         e: Exception,
         map: Map<String, String>,
-        s: String
+        s: String,
     ): List<ReportingMessage> = emptyList()
 
     override fun logEvent(mpEvent: MPEvent): List<ReportingMessage>? {
@@ -135,7 +149,7 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
                                 it.declarePreference(
                                     key,
                                     key,
-                                    PushIOPreference.Type.STRING
+                                    PushIOPreference.Type.STRING,
                                 )
                                 it.setPreference(key, value)
                             } catch (e: ValidationException) {
@@ -154,21 +168,29 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
         return if (reportingMessages.isEmpty()) null else reportingMessages
     }
 
-    override fun logScreen(s: String, map: Map<String, String>): List<ReportingMessage> =
-        emptyList()
+    override fun logScreen(
+        s: String,
+        map: Map<String, String>,
+    ): List<ReportingMessage> = emptyList()
 
     override fun willHandlePushMessage(intent: Intent): Boolean {
         PIOLogger.v("RK wHPM")
         return isResponsysPush(intent)
     }
 
-    override fun onPushMessageReceived(context: Context, intent: Intent) {
+    override fun onPushMessageReceived(
+        context: Context,
+        intent: Intent,
+    ) {
         PIOLogger.v("RK oPMR")
         val newIntent = Intent(intent)
         PushIOBroadcastReceiver().onReceive(getContext(), newIntent)
     }
 
-    override fun onPushRegistration(instanceId: String, senderId: String): Boolean {
+    override fun onPushRegistration(
+        instanceId: String,
+        senderId: String,
+    ): Boolean {
         PIOLogger.v("RK oPR Instance ID: $instanceId, Sender ID: $senderId")
         mPushIOManager?.let {
             it.setDeviceToken(instanceId)
@@ -179,13 +201,13 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
 
     override fun onIdentifyCompleted(
         mParticleUser: MParticleUser,
-        filteredIdentityApiRequest: FilteredIdentityApiRequest
+        filteredIdentityApiRequest: FilteredIdentityApiRequest,
     ) {
     }
 
     override fun onLoginCompleted(
         mParticleUser: MParticleUser,
-        filteredIdentityApiRequest: FilteredIdentityApiRequest
+        filteredIdentityApiRequest: FilteredIdentityApiRequest,
     ) {
         PIOLogger.v("RK oLiC")
         registerUserId(mParticleUser)
@@ -193,7 +215,7 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
 
     override fun onLogoutCompleted(
         mParticleUser: MParticleUser,
-        filteredIdentityApiRequest: FilteredIdentityApiRequest
+        filteredIdentityApiRequest: FilteredIdentityApiRequest,
     ) {
         PIOLogger.v("RK oLoC")
         mPushIOManager?.unregisterUserId()
@@ -201,7 +223,7 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
 
     override fun onModifyCompleted(
         mParticleUser: MParticleUser,
-        filteredIdentityApiRequest: FilteredIdentityApiRequest
+        filteredIdentityApiRequest: FilteredIdentityApiRequest,
     ) {
     }
 
@@ -224,10 +246,10 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
         return userId
     }
 
-    private fun isResponsysPush(intent: Intent?): Boolean {
-        return intent != null && intent.hasExtra("ei") &&
-                !KitUtils.isEmpty(intent.getStringExtra("ei"))
-    }
+    private fun isResponsysPush(intent: Intent?): Boolean =
+        intent != null &&
+            intent.hasExtra("ei") &&
+            !KitUtils.isEmpty(intent.getStringExtra("ei"))
 
     private fun processCustomFlags(mpEvent: MPEvent): MutableList<ReportingMessage> {
         val reportingMessages: MutableList<ReportingMessage> = ArrayList()
@@ -248,7 +270,7 @@ class ResponsysKit : KitIntegration(), PushListener, KitIntegration.EventListene
                         PIOLogger.e("Invalid engagement type")
                         PIOLogger.e(
                             "Supported engagement types can be accessed from PushIOManager and are of type: " +
-                                    "PushIOManager.PUSHIO_ENGAGEMENT_METRIC_***"
+                                "PushIOManager.PUSHIO_ENGAGEMENT_METRIC_***",
                         )
                     }
                 }
